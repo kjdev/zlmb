@@ -311,7 +311,7 @@ Worker program (path/to/exec) is executed the message was received.
 
 Worker programs (path/to/exec) can be run a few minutes maximum thread count.
 
-![worker](etc/worker.png)
+![worker](/kjdev/zlmb/raw/master/etc/worker.png)
 
 #### environment variables
 
