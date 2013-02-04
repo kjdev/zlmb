@@ -174,7 +174,7 @@ priority basis.
 % zlmb-server --mode client --config config.yml
 ```
 
-Configuration file, see [config.yml](etc/config.yml).
+Configuration file, see [config.yml](/kjdev/zlmb/raw/master/etc/config.yml).
 
 ### syslog
 
