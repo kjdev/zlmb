@@ -1,0 +1,43 @@
+digraph zlmb {
+    graph [rankdir=LR];
+    node [shape=Mrecord style=filled colorscheme=pastel15];
+
+    subgraph cluster0 {
+        label="client application\n(your program)";
+        style=filled;
+        color=lightgrey;
+        app [label="PUSH|connect"];
+    }
+    subgraph cluster1 {
+        color=white;
+        label="client server";
+        client_front [label="PULL|frontend|bind" fillcolor=1];
+        client_back [label="PUSH|backend|connect" fillcolor=1];
+        client_front -> client_back [arrowhead = onormal];
+    }
+    subgraph cluster2 {
+        color=white;
+        label = "publish server";
+        publish_front [label="PULL|frontend|bind" fillcolor=2];
+        publish_back [label="PUB|backend|bind" fillcolor=2];
+        publish_front -> publish_back [arrowhead = onormal];
+    }
+    subgraph cluster3 {
+        color=white;
+        label = "subscribe server";
+        subscribe_front [label="SUB|frontend|connect" fillcolor=3];
+        subscribe_back [label="PUSH|backend|bind" fillcolor=3];
+        subscribe_front -> subscribe_back [arrowhead = onormal];
+    }
+    subgraph cluster4 {
+        label = "worker application\n(your program)";
+        style=filled;
+        color=lightgrey;
+        worker [label="PULL|connect"];
+    }
+
+    app -> client_front;
+    client_back -> publish_front;
+    publish_back -> subscribe_front;
+    subscribe_back -> worker;
+}

@@ -1,0 +1,33 @@
+#ifndef __ZLMB_H__
+#define __ZLMB_H__
+
+#include <zmq.h>
+
+#define ZLMB_VERSION_MAJOR 0
+#define ZLMB_VERSION_MINOR 1
+#define ZLMB_VERSION_PATCH 0
+
+#define ZLMB_MAKE_VERSION(major, minor, patch) \
+    ((major) * 10000 + (minor) * 100 + (patch))
+#define ZLMB_VERSION \
+    ZLMB_MAKE_VERSION(ZLMB_VERSION_MAJOR, ZLMB_VERSION_MINOR, ZLMB_VERSION_PATCH)
+
+#define ZLMB_CLI_FRONT (1<<0)
+#define ZLMB_CLI_BACK  (1<<1)
+#define ZLMB_PUB_FRONT (1<<2)
+#define ZLMB_PUB_BACK  (1<<3)
+#define ZLMB_SUB_FRONT (1<<4)
+#define ZLMB_SUB_BACK  (1<<5)
+
+#define ZLMB_MODE_CLIENT            (ZLMB_CLI_FRONT|ZLMB_CLI_BACK)
+#define ZLMB_MODE_PUBLISH           (ZLMB_PUB_FRONT|ZLMB_PUB_BACK)
+#define ZLMB_MODE_SUBSCRIBE         (ZLMB_SUB_FRONT|ZLMB_SUB_BACK)
+#define ZLMB_MODE_CLIENT_PUBLISH    (ZLMB_CLI_FRONT|ZLMB_PUB_BACK)
+#define ZLMB_MODE_CLIENT_SUBSCRIBE  (ZLMB_CLI_FRONT|ZLMB_CLI_BACK|ZLMB_SUB_FRONT|ZLMB_SUB_BACK)
+#define ZLMB_MODE_PUBLISH_SUBSCRIBE (ZLMB_PUB_FRONT|ZLMB_SUB_BACK)
+#define ZLMB_MODE_STAND_ALONE       (ZLMB_CLI_FRONT|ZLMB_SUB_BACK)
+
+#define ZLMB_DEFAULT_CLIENT_DUMP_FILE    "/tmp/zlmb-client-dump.dat"
+#define ZLMB_DEFAULT_SUBSCRIBE_DUMP_FILE "/tmp/zlmb-subscribe-dump.dat"
+
+#endif

@@ -1,0 +1,6 @@
+#ifndef __ZLMB_CONFIG_H__
+#define __ZLMB_CONFIG_H__
+
+#cmakedefine USE_SNAPPY
+
+#endif

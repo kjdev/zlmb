@@ -1,0 +1,153 @@
+
++ client で publisher が起動していない場合の処理確認
+  => 接続しているものがない場合は dump ファイルに書き込む
+
++ publisher で KEY の送信処理
+  -> sendkey = 1 の場合は 1 フレーム目に KEY を送信する
+  -> KEY が定義されていない場合は空メッセージを送信する
+  -> sendkey = 0 の場合は KEY を送信しない
++ publisher で subscriber が起動していない場合の処理確認
+  -> メッセージは Drop される
+
++ subscriber で worker が起動していない場合の処理確認
+  -> メッセージはたまる
+  => 接続しているものがない場合は dump ファイルに書き込む
+
++ subscriber で 1 フレーム目の削除オプションを追加
+  -> dropkey = 1 の場合は 1 フレーム目を送信しない
+
++ server アプリケーションを utils を使用しないバージョンに変更
+
++ server アプリケーションを 1 つの実行ファイルにまとめる
+  -> mode: client | publisher | subscriber
+
++ 複合モード (compound)
+  client:publisher (publisher:client)
+   -> 5557 (PULL:bind) -> 5559 (PUB:bind)
+   -> subscriber が起動してい場合のメッセージは Drop される
+
+  publisher:subscriber (subscriber:publisher)
+   -> 5558 (PULL:bind) -> 5560 (PUSH:bind)
+   -> worker が起動してい場合のメッセージはたまる?
+
+  client:subscriber (subscriber:client)
+   -> 5557 (PULL:bind) -> 5558 (PUSH:connect)
+   -> 5559 (SUB:connect) -> 5560 (PUSH:bind)
+
+  stand-alone
+   -> 5557 (PULL:bind) -> 5560 (PUSH:bind)
+
++ 動作確認
+  cl: client              : OK
+  pb: publisher           : OK
+  sb: subscriber          : OK
+  cp: client-publisher    : OK
+  ps: publisher-subscriber: OK
+  cs: client-subscriber   : OK
+  sa: stand-alone         : OK
+
+  c ==> cl + pb + sb ==> w : OK (標準出力)
+  c ==> cl + pb + sb ==> . : OK (sub dump 出力)
+  c ==> cl + pb + .  ==> w : OK (pub でメッセージドロップ)
+  c ==> cl + .  + sb ==> w : OK (cli dump 出力)
+
+  (sendkey/dropkey ?)
+
+  c ==> cp + sb ==> w : OK (標準出力)
+  c ==> cp + sb ==> . : OK (sub dump 出力)
+  c ==> cp + .  ==> w : OK (メッセージドロップ)
+
+  (sendkey?)
+
+  c ==> cl + ps ==> w : OK (標準出力)
+  c ==> cl + ps ==> . : OK (sub dump 出力)
+  c ==> cl + .  ==> w : OK (cli dump 出力)
+
+  c ==> cs + pb + cs ==> w : OK (標準出力)
+  c ==> cs + pb + cs ==> . : OK (sub dump 出力)
+
+  (sendkey/dropkey ?)
+
+  c ==> sa ==> w : OK (標準出力)
+  c ==> sa ==> . : OK (sub dump 出力)
+
+
+- Yaml 設定ファイルの読み込み処理
+  -> 引数オプションを優先
+  -> subscriber_key は前方一致
+     -> pubscriber_key = test.1 / subscriber_key = test
+        の場合 subscriber は test.1 キーのメッセージも受け取る
+        (test キーのメッセージも受信)
+
+- dump の plain text 出力
+
+- errorfile/errortype を dumpfile/dumptype に変更
+
+- cmake zmq/yaml のバージョン/ライブラリチェック
+
+- app_dump の調整
+
+- app_worker ? server-worker ? (worker のサーバー処理はいるかな ?)
+  subscriber モードに組み込む ?
+  リクエストを受けて設定されたワーカーを起動させる ?
+  fcgi みたいな感じ (環境変数?)
+
+  -> command に実行する受信時に起動するコマンドを設定することで
+     サーバー状態で起動する
+     -> 受信毎に command が実行される
+        受信情報は環境変数に
+          ZLMB_FRAME : フレーム数 (x)
+          ZLMB_FRAME_LENGTH : 各フレームの長さ (xx:yy:zz)
+          ZLMB_LENGTH : 受信したバッファのトータル長さ (x)
+        標準入力から受信したバッファが取得可能
+  -> thread オプションを指定することでコマンド実行のスレッドを指定可能
+
+- 圧縮は (snappy)
+  -> client で backend => publisher で圧縮
+  -> subscriber の backend => worker で解凍
+
+  -> cmake -DUSE_SNAPPY=ON で有効化
+     -> デフォルトは無効
+
+- flock 処理を修正
+  -> fwrite とかの方を使用する
+
+
+- エラーログの処理 (verbose ?)
+  syslog 対応
+   -> 通常は stderr に出力して --syslog オプションが定義された場合は
+      syslog に出力
+
+- rename: server.c -> app_server.c
+
+- サンプルアプリケーション
+
+- zlmb-cli 標準入力 pipe 処理
+  tail 処理ができるように
+
+- Extend Application の使用方法を README に記載
+
+* CMake install 設定
+
+* zmq_sockopt の設定処理
+
+* テスト
+
+    //ZMQ_SNDBUF: Retrieve kernel transmit buffer size (int)
+    //ZMQ_MAXMSGSIZE: Maximum acceptable inbound message size (int64_t)
+    //ZMQ_TCP_KEEPALIVE
+
+    /*
+    int sndbuf;
+    int64_t maxmsg;
+    size_t opt_size = sizeof(sndbuf);
+    if (zmq_getsockopt(socket, ZMQ_SNDBUF, &sndbuf, &opt_size) != 0) {
+        _ERR("Failed: opt\n");
+    }
+    opt_size = sizeof(maxmsg);
+    if (zmq_getsockopt(socket, ZMQ_MAXMSGSIZE, &maxmsg, &opt_size) != 0) {
+        _ERR("Failed: opt\n");
+    }
+    printf("sndbuf => %d\n", sndbuf);
+    printf("sndbuf => %d\n", maxmsg);
+    */

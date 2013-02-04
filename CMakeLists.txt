@@ -1,0 +1,160 @@
+# cmake
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
+SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -DNDEBUG")
+SET(CMAKE_C_FLAGS_DEBUG "-Wall -W -g")
+
+# project
+PROJECT(zlmb)
+SET(VERSION "1.0.0")
+
+# option
+OPTION(USE_TCMALLOC "Use tcmalloc" OFF)
+OPTION(USE_SNAPPY "Use snappy" OFF)
+OPTION(ZEROMQ_INCLUDE_PATH "ZeroMQ include path" "")
+OPTION(ZEROMQ_LIBRARY_PATH "ZeroMQ library path" "")
+OPTION(YAML_INCLUDE_PATH "YAML include path" "")
+OPTION(YAML_LIBRARY_PATH "YAML library path" "")
+OPTION(SNAPPY_INCLUDE_PATH "Snappy include path" "")
+OPTION(SNAPPY_LIBRARY_PATH "Snappy library path" "")
+
+# zeromq (v3.2)
+SET(ZEROMQ_MINIMUM_REQUIRED_VERSION 30200) # 3.2 or higher
+
+FIND_PATH(ZEROMQ_INCLUDES
+  zmq.h
+  PATHS ${ZEROMQ_INCLUDE_PATH})
+
+FIND_LIBRARY(ZEROMQ_LIBRARIES
+  NAMES libzmq zmq
+  PATHS ${ZEROMQ_LIBRARY_PATH})
+
+IF(ZEROMQ_INCLUDES STREQUAL "ZEROMQ_INCLUDES-NOTFOUND")
+  MESSAGE(FATAL_ERROR "ZeroMQ could not found zmq.h\n"
+    "OPTION: -DZEROMQ_INCLUDE_PATH=path")
+ENDIF()
+
+IF(ZEROMQ_LIBRARIES STREQUAL "ZEROMQ_LIBRARIES-NOTFOUND")
+  MESSAGE(FATAL_ERROR "ZeroMQ could not found libzmq.so\n"
+    "OPTION: -DZEROMQ_LIBRARY_PATH=path")
+ENDIF()
+
+SET(CMAKE_REQUIRED_INCLUDES ${ZEROMQ_INCLUDES})
+SET(CMAKE_REQUIRED_LIBRARIES ${ZEROMQ_LIBRARIES})
+
+INCLUDE(CheckCSourceRuns)
+CHECK_C_SOURCE_RUNS("
+    #include <zmq.h>
+    int main() {
+        if (ZMQ_VERSION > ${ZEROMQ_MINIMUM_REQUIRED_VERSION}) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }" HAVE_ZMQ_VERSION)
+
+IF(NOT HAVE_ZMQ_VERSION)
+  MESSAGE(FATAL_ERROR "ZeroMQ 3.2 or higher is required.")
+ENDIF()
+
+INCLUDE_DIRECTORIES(${ZEROMQ_INCLUDES})
+SET(_ZEROMQ_LIBS "${ZEROMQ_LIBRARIES}")
+
+# yaml
+FIND_PATH(YAML_INCLUDES
+  yaml.h
+  PATHS ${YAML_INCLUDE_PATH})
+
+FIND_LIBRARY(YAML_LIBRARIES
+  NAMES libyaml yaml
+  PATHS ${YAML_LIBRARY_PATH})
+
+IF(YAML_INCLUDES STREQUAL "YAML_INCLUDES-NOTFOUND")
+  MESSAGE(FATAL_ERROR "YAML could not found yaml.h\n"
+    "OPTION: -DYAML_INCLUDE_PATH=path")
+ENDIF()
+
+IF(YAML_LIBRARIES STREQUAL "YAML_LIBRARIES-NOTFOUND")
+  MESSAGE(FATAL_ERROR "YAML could not found libyaml.so\n"
+    "OPTION: -DYAML_LIBRARY_PATH=path")
+ENDIF()
+
+INCLUDE_DIRECTORIES(${YAML_INCLUDES})
+SET(_YAML_LIBS "${YAML_LIBRARIES}")
+
+# snappy
+IF(USE_SNAPPY)
+  FIND_PATH(SNAPPY_INCLUDES
+    snappy-c.h
+    PATHS ${SNAPPY_INCLUDE_PATH})
+
+  FIND_LIBRARY(SNAPPY_LIBRARIES
+    NAMES libsnappy snappy
+    PATHS ${SNAPPY_LIBRARY_PATH})
+
+  IF(SNAPPY_INCLUDES STREQUAL "SNAPPY_INCLUDES-NOTFOUND")
+    MESSAGE(FATAL_ERROR "Snappy could not found snappy-c.h\n"
+      "OPTION: -DSNAPPY_INCLUDE_PATH=path")
+  ENDIF()
+
+  IF(SNAPPY_LIBRARIES STREQUAL "SNAPPY_LIBRARIES-NOTFOUND")
+    MESSAGE(FATAL_ERROR "Snappy could not found libsnappy.so\n"
+      "OPTION: -DSNAPPY_LIBRARY_PATH=path")
+  ENDIF()
+
+  INCLUDE_DIRECTORIES(${SNAPPY_INCLUDES})
+  SET(_COMPRESS_LIBS "${SNAPPY_LIBRARIES}")
+ELSE()
+  SET(_COMPRESS_LIBS "")
+ENDIF()
+
+# config.h
+CONFIGURE_FILE(
+  ${CMAKE_SOURCE_DIR}/src/config.h.in
+  ${CMAKE_BINARY_DIR}/config.h)
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+
+# application
+ADD_EXECUTABLE(zlmb-server
+  src/app_server.c src/dump.c src/option.c src/utils.c)
+TARGET_LINK_LIBRARIES(zlmb-server
+  ${_ZEROMQ_LIBS} ${_YAML_LIBS} ${_COMPRESS_LIBS} pthread)
+
+# extend application
+ADD_EXECUTABLE(zlmb-cli
+  src/app_client.c src/dump.c)
+TARGET_LINK_LIBRARIES(zlmb-cli
+  ${_ZEROMQ_LIBS} ${_COMPRESS_LIBS})
+
+ADD_EXECUTABLE(zlmb-dump
+  src/app_dump.c src/dump.c)
+TARGET_LINK_LIBRARIES(zlmb-dump
+  ${_ZEROMQ_LIBS} ${_COMPRESS_LIBS})
+
+ADD_EXECUTABLE(zlmb-worker
+  src/app_worker.c src/dump.c src/stack.c src/utils.c)
+TARGET_LINK_LIBRARIES(zlmb-worker
+  ${_ZEROMQ_LIBS} ${_COMPRESS_LIBS} pthread)
+
+# example
+ADD_EXECUTABLE(exp-client
+  src/exp_client.c)
+TARGET_LINK_LIBRARIES(exp-client
+  ${_ZEROMQ_LIBS})
+
+ADD_EXECUTABLE(exp-worker
+  src/exp_worker.c)
+TARGET_LINK_LIBRARIES(exp-worker
+  ${_ZEROMQ_LIBS})
+
+ADD_EXECUTABLE(exp-worker-exec
+  src/exp_worker_exec.c)
+TARGET_LINK_LIBRARIES(exp-worker-exec
+  ${_ZEROMQ_LIBS})
+
+# install
+INSTALL_PROGRAMS(/bin FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/zlmb-server
+  ${CMAKE_CURRENT_BINARY_DIR}/zlmb-cli
+  ${CMAKE_CURRENT_BINARY_DIR}/zlmb-dump
+  ${CMAKE_CURRENT_BINARY_DIR}/zlmb-worker)

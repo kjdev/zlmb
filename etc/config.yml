@@ -1,0 +1,79 @@
+
+mode: client
+# string: client | publish | subscribe |
+#         client-publish | publish-subscribe | client-subscribe |
+#         stand-alone
+
+# client
+client_frontendpoint: tcp://127.0.0.1:5557
+# string: -
+
+# client_backendpoints: tcp://127.0.0.1:5558
+# client_backendpoints: tcp://127.0.0.1:5558,tcp://127.0.0.1:7778
+client_backendpoints:
+   - tcp://127.0.0.1:5558
+   - tcp://127.0.0.1:7778
+# strint/array: -
+
+client_dumpfile: "/tmp/zlmb-client-dump.dat"
+# string: /tmp/zlmb-client-dump.dat (default)
+
+# client_dumptype: binary
+# client_dumptype: plain-text
+# client_dumptype: plain-time
+# client_dumptype: plain-flags
+# client_dumptype: plain-time-flags
+# string: binary (default)
+
+# publish
+publish_frontendpoint: tcp://127.0.0.1:5558
+# string: -
+
+publish_backendpoint: tcp://127.0.0.1:5559
+# string: -
+
+publish_key: ""
+# publish_key: "test"
+# publish_key: "test.1"
+# string: -
+
+publish_sendkey: false
+# publish_sendkey: true
+# boolean: true | false
+
+# subscribe
+# subscribe_frontendpoints: tcp://127.0.0.1:5559
+subscribe_frontendpoints:
+  - tcp://127.0.0.1:5559
+  - tcp://127.0.0.1:6669
+# strint/array: -
+
+subscribe_backendpoint: tcp://127.0.0.1:5560
+# string: -
+
+subscribe_key: ""
+# subscribe_key: "test"
+# string: -
+
+subscribe_dropkey: false
+# subscribe_dropkey: true
+# boolean: true / false
+
+subscribe_dumpfile: "/tmp/zlmb-subscribe-dump.dat"
+# string: /tmp/zlmb-subscribe-dump.dat (default)
+
+# subscribe_dumptype: binary
+# subscribe_dumptype: plain-text
+# subscribe_dumptype: plain-time
+# subscribe_dumptype: plain-flags
+# subscribe_dumptype: plain-time-flags
+# string: binary (default)
+
+
+# syslog: false
+# syslog: true
+# boolean: true / false (default)
+
+# verbose: false
+verbose: true
+# boolean: true / false (default)
