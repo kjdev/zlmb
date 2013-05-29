@@ -4,11 +4,11 @@ ZeroMQ-based Log Message broker
 
 ## Structure
 
-![Structure](/kjdev/zlmb/raw/master/etc/structure.png)
+![Structure](etc/structure.png)
 
 ## ZeroMQ socket type and connection
 
-![ZeroMQ](/kjdev/zlmb/raw/master/etc/zeromq.png)
+![ZeroMQ](etc/zeromq.png)
 
 ## Build
 
@@ -174,7 +174,7 @@ priority basis.
 % zlmb-server --mode client --config config.yml
 ```
 
-Configuration file, see [config.yml](/kjdev/zlmb/raw/master/etc/config.yml).
+Configuration file, see [config.yml](etc/config.yml).
 
 ### syslog
 
@@ -217,7 +217,7 @@ zlmb-cli [-e ENDPOINT] [-f FILE] [-m NUM] [ARGS ...]
    % zlmb-cli -e tcp://127.0.0.1:5557 test message
    ```
 
-   ![cli-fig1](/kjdev/zlmb/raw/master/etc/cli-fig1.png)
+   ![cli-fig1](etc/cli-fig1.png)
 
 2. send to 2 part message.
 
@@ -225,7 +225,7 @@ zlmb-cli [-e ENDPOINT] [-f FILE] [-m NUM] [ARGS ...]
    % zlmb-cli -e tcp://127.0.0.1:5557 -m 2 test message
    ```
 
-   ![cli-fig2](/kjdev/zlmb/raw/master/etc/cli-fig2.png)
+   ![cli-fig2](etc/cli-fig2.png)
 
 3. send to file (filename: test.txt).
 
@@ -235,7 +235,7 @@ zlmb-cli [-e ENDPOINT] [-f FILE] [-m NUM] [ARGS ...]
    % zlmb-cli -e tcp://127.0.0.1:5557 -f test.txt
    ```
 
-   ![cli-fig3](/kjdev/zlmb/raw/master/etc/cli-fig3.png)
+   ![cli-fig3](etc/cli-fig3.png)
 
 4. send to stdin.
 
@@ -243,7 +243,7 @@ zlmb-cli [-e ENDPOINT] [-f FILE] [-m NUM] [ARGS ...]
    % echo 'message' | zlmb-cli -e tcp://127.0.0.1:5557 -f stdin
    ```
 
-   ![cli-fig4](/kjdev/zlmb/raw/master/etc/cli-fig4.png)
+   ![cli-fig4](etc/cli-fig4.png)
 
 5. send to stdin and multi part.
 
@@ -251,13 +251,13 @@ zlmb-cli [-e ENDPOINT] [-f FILE] [-m NUM] [ARGS ...]
    % echo 'message' | zlmb-cli -e tcp://127.0.0.1:5557 -f stdin -m 2 tag
    ```
 
-   ![cli-fig5](/kjdev/zlmb/raw/master/etc/cli-fig5.png)
+   ![cli-fig5](etc/cli-fig5.png)
 
    ```
    % cat test.txt | zlmb-cli -e tcp://127.0.0.1:5557 -f stdin -m 2 tag
    ```
 
-   ![cli-fig6](/kjdev/zlmb/raw/master/etc/cli-fig6.png)
+   ![cli-fig6](etc/cli-fig6.png)
 
 ### zlmb-dump
 
@@ -311,7 +311,7 @@ Worker program (path/to/exec) is executed the message was received.
 
 Worker programs (path/to/exec) can be run a few minutes maximum thread count.
 
-![worker](/kjdev/zlmb/raw/master/etc/worker.png)
+![worker](etc/worker.png)
 
 #### environment variables
 
@@ -329,26 +329,26 @@ Message received by the ZeroMQ
 
 Client program sends a message to connect to the client\_frontendpoint.
 
-* [C](/kjdev/zlmb/raw/master/src/exp_client.c)
-* [PHP](/kjdev/zlmb/raw/master/src/exp_client.php)
-* [Python](/kjdev/zlmb/raw/master/src/exp_client.py)
-* [Ruby](/kjdev/zlmb/raw/master/src/exp_client.rb)
+* [C](src/exp_client.c)
+* [PHP](src/exp_client.php)
+* [Python](src/exp_client.py)
+* [Ruby](src/exp_client.rb)
 
 ### worker
 
 Worker program to receive messages connected to subscribe\_backendpoint,
 do any processing.
 
-* [C](/kjdev/zlmb/raw/master/src/exp_worker.c)
-* [PHP](/kjdev/zlmb/raw/master/src/exp_worker.php)
-* [Python](/kjdev/zlmb/raw/master/src/exp_worker.py)
-* [Ruby](/kjdev/zlmb/raw/master/src/exp_worker.rb)
+* [C](src/exp_worker.c)
+* [PHP](src/exp_worker.php)
+* [Python](src/exp_worker.py)
+* [Ruby](src/exp_worker.rb)
 
 ### worker exec
 
 Example of worker program to start at zlmb-worker.
 
-* [C](/kjdev/zlmb/raw/master/src/exp_worker_exec.c)
-* [PHP](/kjdev/zlmb/raw/master/src/exp_worker_exec.php)
-* [Python](/kjdev/zlmb/raw/master/src/exp_worker_exec.py)
-* [Ruby](/kjdev/zlmb/raw/master/src/exp_worker_exec.rb)
+* [C](src/exp_worker_exec.c)
+* [PHP](src/exp_worker_exec.php)
+* [Python](src/exp_worker_exec.py)
+* [Ruby](src/exp_worker_exec.rb)
