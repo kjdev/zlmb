@@ -19,14 +19,14 @@
 
 static int
 _stdin(int fd) {
-    fd_set fdset;
-    struct timeval timeout;
+    struct stat st;
 
-    FD_ZERO(&fdset);
-    FD_SET(fd, &fdset);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    return select(fd + 1, &fdset, NULL, NULL, &timeout);
+    if (fstat(STDIN_FILENO, &st) == 0 &&
+        S_ISFIFO(st.st_mode)) {
+        return 1;
+    }
+
+    return 0;
 }
 
 static void
